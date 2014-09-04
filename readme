@@ -1,0 +1,60 @@
+Facial Points Labeling Application
+        V1.2        
+        Yu Zhu, WVU, USA, 2014
+        yzhu4@mix.wvu.edu
+
+How to Use:
+
+        1. Set the Output Folder
+           (1)Go to Menu-->Setting-->Output Folder
+           (2)Select the folder where the output files will be saved
+
+        2. Set the Image Folder
+           (1)Press Button "Select..." in the main window
+                OR go to Menu-->File-->Open.
+           (2)Select the images folder for labeling. The 1st image in the folder will be loaded.
+           Note. In this version (v1.2), ONLY .jpg file is supported.
+
+        3. Label the Facial Points
+           (1)Click the image area to label the facial points.
+           (2)The position (x,y) will be shown in the listbox for each point.
+           (3)Select item in the listbox can label/modify each specific point.
+
+        4. Save the Points
+           (1)When all the points are labeled, pop-up window will show up.
+              OR
+                 Go to Menu-->File-->Save
+              OR
+                 Click "Save" button
+
+           Note. The point positions are saved in JSON string format and output to .txt file.
+                 The saving overwrites the previous output each time.
+
+        5. Modify the Points
+           (1)Select the item in the listbox and click the image area to modify the positions of that point.
+           (2)Right click in the image area will delete the previous point that has been labeled.
+           
+        6. Clear the Labeled Points
+           (1)Press the "Clear Labeled Points" button, all the points that labeled in this image will be clear and reset.
+        
+        7. Go to Next Image
+           (1)Press Next button to label the next image in the folder.
+
+        8. Go to Previous Image
+           (1)Press Previous button to label the previous image in the folder.
+
+        9. (Usually not required) Reset the default Number of Points & Point Names.
+           If you need to change the default number of points and names for labeling:
+           (1)Go to Menu-->Setting--> Point Number & Names.
+           (2)The default settings are shown, select YES to reset.
+           (3)Input the number of facial points for labeling.
+           (4)Input the names of the points.
+
+           Note. In this version (V1.2), this reset step MUST be done BEFORE labeling.
+
+
+   
+   
+
+
+
