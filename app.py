@@ -31,7 +31,7 @@ class App(object):
         self.linesAll = []              # List of list: each list in the list saves the marks shown in each image
         self.currentIndex = 0           # Current Image Index selected from the file list
         self.currentPoint = 0           # Current Point Index for labeling
-
+        self.imgformatstr = '*.jpg'      # Load Image format
         self.entrylist = []             # List of Entry widget for the Setting->PointsNames
 
         imgSizeX = 600                  # image size for canvas show (bigger than the real image size)
@@ -70,7 +70,7 @@ class App(object):
         frame_imglab.pack(fill=BOTH, expand=YES)
         # Face canvas Frame: level 3
         frame_imgcanvas = Frame(frame_img0)
-        frame_imgcanvas.pack(pady=5)
+        frame_imgcanvas.pack(pady=5,fill=BOTH, expand=YES)
         # Face button Frame: level 3
         frame_imgbtn = Frame(frame_img0)
         frame_imgbtn.pack(fill=BOTH, expand=YES)
@@ -87,7 +87,7 @@ class App(object):
         frame_flb.pack(side=TOP, fill=Y, expand=YES, anchor=W)
         # Message Frame
         frame_msg = Frame(frame_right)
-        frame_msg.pack(side=TOP,anchor=W)
+        frame_msg.pack(side=TOP, anchor=W)
 
 
 
@@ -462,7 +462,7 @@ class App(object):
         else:
             #load all images in the selected folder
             import glob
-            self.filelist = glob.glob(os.path.join(self.filepath, '*.jpg'))
+            self.filelist = glob.glob(os.path.join(self.filepath, self.imgformatstr))
             if len(self.filelist) != 0:
                 filename = self.filelist[self.currentIndex]
                 #logging.warning(filename)
@@ -480,13 +480,13 @@ class App(object):
                 self.img.create_image(0, 0, anchor=NW, image=photo)
                 self.img.image = photo
                 #self.img.configure(width=im.size[0], height=im.size[1])
-                #self.img.configure(width=400, height=400)
+                self.img.configure(scrollregion=(0, 0, im.size[0], im.size[1]))
                 # reset the view
                 self.img.xview_moveto(0)
                 self.img.yview_moveto(0)
 
             else:
-                showwarning("No jpg files in this folder", "Please select proper file folder.")
+                showwarning("No image files in this folder", "Please select proper file folder.")
 
     """ Menu: show about message """
     def about(self):
