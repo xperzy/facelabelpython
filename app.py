@@ -34,10 +34,10 @@ class App(object):
         self.imgformatstr = '*.jpg'      # Load Image format
         self.entrylist = []             # List of Entry widget for the Setting->PointsNames
 
-        imgSizeX = 600                  # image size for canvas show (bigger than the real image size)
-        imgSizeY = 600
-        winSizeX = 600                  # canvas size on the window
-        winSizeY = 600
+        self.imgSizeX = 500                  # image size for canvas show (bigger than the real image size)
+        self.imgSizeY = 500
+        self.winSizeX = 500                  # canvas size on the window
+        self.winSizeY = 500
 
         #########  Menu Widget  ########
         menubar = Menu(master)
@@ -70,7 +70,7 @@ class App(object):
         frame_imglab.pack(fill=BOTH, expand=YES)
         # Face canvas Frame: level 3
         frame_imgcanvas = Frame(frame_img0)
-        frame_imgcanvas.pack(pady=5,fill=BOTH, expand=YES)
+        frame_imgcanvas.pack(pady=5, fill=BOTH, expand=YES)
         # Face button Frame: level 3
         frame_imgbtn = Frame(frame_img0)
         frame_imgbtn.pack(fill=BOTH, expand=YES)
@@ -120,7 +120,7 @@ class App(object):
         self.vscrollbar.pack(fill=Y, side=RIGHT, expand=FALSE)
         self.hscrollbar = Scrollbar(frame_imgcanvas, orient=HORIZONTAL)
         self.hscrollbar.pack(fill=X, side=BOTTOM, expand=FALSE)
-        self.img = Canvas(frame_imgcanvas, width=winSizeX, height=winSizeY, background="white", scrollregion=(0, 0, imgSizeX, imgSizeY), yscrollcommand=self.vscrollbar.set, xscrollcommand=self.hscrollbar.set)
+        self.img = Canvas(frame_imgcanvas, width=self.winSizeX, height=self.winSizeY, background="white", scrollregion=(0, 0, self.imgSizeX, self.imgSizeY), yscrollcommand=self.vscrollbar.set, xscrollcommand=self.hscrollbar.set)
         self.vscrollbar.config(command=self.img.yview)
         self.hscrollbar.config(command=self.img.xview)
         self.img.configure(cursor='crosshair')
@@ -227,6 +227,8 @@ class App(object):
             else:
                 showwarning("Loading Error", "Output file exists but labels cannot be loaded!")
             file_obj.close()
+        else:
+            self.pointsAll[self.currentIndex] = dict(zip(self.pNames, self.pPos))
 
 
 
@@ -308,6 +310,12 @@ class App(object):
         if filepath:
             self.outputdir = filepath
             self.outp.set("Output: "+self.outputdir)
+            self.opathLab.configure(state='normal')
+            self.opathLab.delete(1.0, END)
+            self.opathLab.insert(END, self.outp.get())
+            self.opathLab.configure(state='disabled')
+            self.readPoints()
+            self.loadPoints()
 
     """ Menu settings: set point num and names """
     def setpoints(self):
@@ -372,7 +380,7 @@ class App(object):
     def selectfolder(self):
         filepath = askdirectory()
         if filepath:
-            self.entry_path.delete(0,END)
+            self.entry_path.delete(0, END)
             self.entry_path.insert(0, filepath)
             self.filepath = self.entry_path.get()
 
@@ -399,6 +407,7 @@ class App(object):
             self.loadimg()
             self.readPoints()
             self.loadPoints()
+
 
     """Button Callback: Previous Image"""
     def previmg(self):
@@ -479,7 +488,7 @@ class App(object):
                 self.img.delete(ALL)
                 self.img.create_image(0, 0, anchor=NW, image=photo)
                 self.img.image = photo
-                #self.img.configure(width=im.size[0], height=im.size[1])
+                self.img.configure(width=im.size[0], height=im.size[1])
                 self.img.configure(scrollregion=(0, 0, im.size[0], im.size[1]))
                 # reset the view
                 self.img.xview_moveto(0)
