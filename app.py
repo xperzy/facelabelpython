@@ -517,10 +517,7 @@ class App(object):
                 self.img.delete(ALL)
                 self.img.create_image(0, 0, anchor=NW, image=photo)
                 self.img.image = photo
-                if im.size[1] > self.imgSizeY and im.size[0] > self.imgSizeX:
-                    self.img.configure(width=self.imgSizeX, height=self.imgSizeY)
-                else:
-                    self.img.configure(width=im.size[0], height=im.size[1])
+                self.img.configure(width=min(self.imgSizeX, im.size[0]), height=min(self.imgSizeY, im.size[1]))
 
                 self.img.configure(scrollregion=(0, 0, im.size[0], im.size[1]))
                 # reset the view
