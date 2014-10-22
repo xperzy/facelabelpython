@@ -95,13 +95,13 @@ class App(object):
 
         # Button: Previous image
         self.btn_prev = Button(frame_imgbtn, text="Previous", command=self.previmg)
-        self.btn_prev.pack(side=LEFT, fill=X,expand=YES)
+        self.btn_prev.pack(side=LEFT, fill=X, expand=YES)
         # Button: Load the image
         self.btn_savelab = Button(frame_imgbtn, text="Save Labels", command=self.savelab)
-        self.btn_savelab.pack(side=LEFT, fill=X,expand=YES)
+        self.btn_savelab.pack(side=LEFT, fill=X, expand=YES)
         # Button: Next image
         self.btn_prev = Button(frame_imgbtn, text="Next", command=self.nextimg)
-        self.btn_prev.pack(side=LEFT, fill=X,expand=YES)
+        self.btn_prev.pack(side=LEFT, fill=X, expand=YES)
 
 
 
@@ -159,19 +159,21 @@ class App(object):
         self.loadPoints()
         self.lb.bind('<<ListboxSelect>>', self.onselect)
 
+        # Button: clear Point
+        self.btn_prev = Button(frame_msg, text="Clear Labeled Points", command=self.clearPoints)
+        self.btn_prev.pack(side=TOP, fill=X, expand=YES)
+
+
         # Label: Show Output Dir
+        self.opathLab = Label(frame_msg, text="Label files output folder:",justify=LEFT)
+        self.opathLab.pack(side=TOP, anchor=W)
         self.outp=StringVar()
-        self.outp.set("Output: "+self.outputdir)
-        #self.opathLab = Label(frame_msg, textvariable=self.outp,justify=LEFT,relief="sunken",width=40)
-        #self.opathLab.pack(side=BOTTOM, anchor=W)
+        self.outp.set(self.outputdir)
         self.opathLab = Text(frame_msg, relief="sunken", width=40, height=1)
         self.opathLab.insert(END, self.outp.get())
         self.opathLab.configure(state='disabled')
         self.opathLab.pack(side=BOTTOM, anchor=W, expand=True)
 
-        # Button: clear Point
-        self.btn_prev = Button(frame_msg, text="Clear Labeled Points", command=self.clearPoints)
-        self.btn_prev.pack(side=LEFT, fill=X, expand=YES)
 
     """List Box callback func:
      If current points is already labeled, change the mark color, change the current point index"""
@@ -309,7 +311,7 @@ class App(object):
         filepath = askdirectory()
         if filepath:
             self.outputdir = filepath
-            self.outp.set("Output: "+self.outputdir)
+            self.outp.set(self.outputdir)
             self.opathLab.configure(state='normal')
             self.opathLab.delete(1.0, END)
             self.opathLab.insert(END, self.outp.get())
@@ -319,7 +321,7 @@ class App(object):
 
     """ Menu settings: set point num and names """
     def setpoints(self):
-        if askquestion(title="Reset the Points...", message="Reset the Points Num and Names? \n \n" + "Points #: " + str(self.pnum) + "\n" + "Point Names: \n   " + "\n   ".join(self.pNames), type=YESNO) == YES:
+        if askquestion(title="Reset the Points...", message="Reset Points Num and Names? \n \n" + "Current Points #: " + str(self.pnum) + "\n" + "Point Names: \n   " + "\n   ".join(self.pNames), type=YESNOCANCEL) == YES:
             self.top = Toplevel()
             self.top.title("Set Number of Points: ")
 
@@ -589,6 +591,7 @@ class App(object):
            (4)Input the names of the points.
 
            Note. In this version (V1.2), this reset step MUST be done BEFORE labeling.
+                 Image size is better less than 500x500 for current version (V1.2)
         """
 
         self.tophelp = Toplevel()
