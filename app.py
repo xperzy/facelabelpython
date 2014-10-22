@@ -89,6 +89,14 @@ class App(object):
         frame_msg = Frame(frame_right)
         frame_msg.pack(side=TOP, anchor=W)
 
+        frame_msg_lt = Frame(frame_msg)
+        frame_msg_lt.pack(side=BOTTOM, anchor=W)
+
+        frame_msg_txt = Frame(frame_msg_lt)
+        frame_msg_txt.pack(side=RIGHT, anchor=W)
+
+
+
 
 
         ################# GUI Left Part Widgets ###################
@@ -165,14 +173,21 @@ class App(object):
 
 
         # Label: Show Output Dir
-        self.opathLab = Label(frame_msg, text="Label files output folder:",justify=LEFT)
-        self.opathLab.pack(side=TOP, anchor=W)
+        self.opathLab_n = Label(frame_msg_lt, text="Output folder:", justify=LEFT)
+        self.opathLab_n.pack(side=LEFT, anchor=W)
+
         self.outp=StringVar()
         self.outp.set(self.outputdir)
-        self.opathLab = Text(frame_msg, relief="sunken", width=40, height=1)
+
+        self.opathLab = Text(frame_msg_txt, width=20, height=1, wrap=NONE)
+        scrl = Scrollbar(frame_msg_txt, orient=HORIZONTAL, command=self.opathLab.xview)
+        self.opathLab.config(xscrollcommand=scrl.set)
+        scrl.pack(side="bottom", fill="x", expand=False)
         self.opathLab.insert(END, self.outp.get())
         self.opathLab.configure(state='disabled')
-        self.opathLab.pack(side=BOTTOM, anchor=W, expand=True)
+        self.opathLab.pack(side=TOP, anchor=W, expand=True)
+
+
 
 
     """List Box callback func:
@@ -218,19 +233,20 @@ class App(object):
 
     """Read point locations from file"""
     def readPoints(self):
-        filename = os.path.basename(self.filelist[self.currentIndex])[0:-4]
-        if os.path.exists(os.path.join(self.outputdir, filename+'.txt')):
-            import json
-            file_obj = open(os.path.join(self.outputdir, filename+'.txt'), 'r')
-            if file_obj:
-                jsondata = json.load(file_obj)
-                if set(jsondata.keys())==set(self.pNames):
-                    self.pointsAll[self.currentIndex] = jsondata  #may have error
+        if len(self.filelist) > 0:
+            filename = os.path.basename(self.filelist[self.currentIndex])[0:-4]
+            if os.path.exists(os.path.join(self.outputdir, filename+'.txt')):
+                import json
+                file_obj = open(os.path.join(self.outputdir, filename+'.txt'), 'r')
+                if file_obj:
+                    jsondata = json.load(file_obj)
+                    if set(jsondata.keys())==set(self.pNames):
+                        self.pointsAll[self.currentIndex] = jsondata  #may have error
+                else:
+                    showwarning("Loading Error", "Output file exists but labels cannot be loaded!")
+                file_obj.close()
             else:
-                showwarning("Loading Error", "Output file exists but labels cannot be loaded!")
-            file_obj.close()
-        else:
-            self.pointsAll[self.currentIndex] = dict(zip(self.pNames, self.pPos))
+                self.pointsAll[self.currentIndex] = dict(zip(self.pNames, self.pPos))
 
 
 
@@ -250,6 +266,15 @@ class App(object):
                 self.lb.select_set(self.pnum-1)
         else:
             #print "Mouse Position: (%s, %s)" % (event.x, event.y)
+            #print "Scroll.fraction()",  self.vscrollbar.fraction(event.x, event.y)
+            #print "scroll get", self.vscrollbar.get()
+
+            #Important: Get the offset of mouse position according to the scroll bar position and image size.
+            offset_y = int(self.img["scrollregion"].split()[3]) * self.vscrollbar.get()[0]
+            offset_y = int(offset_y)
+            offset_x = int(self.img["scrollregion"].split()[2]) * self.hscrollbar.get()[0]
+            offset_x = int(offset_x)
+            #print "offset:", offset_x,offset_y
 
             if self.linesAll[self.currentIndex]:
                 # recolor the previous point
@@ -265,16 +290,17 @@ class App(object):
                 self.img.delete(self.linesAll[self.currentIndex][self.pNames[index]][0])
                 self.img.delete(self.linesAll[self.currentIndex][self.pNames[index]][1])
 
-            c1 = self.img.create_line(event.x-4, event.y, event.x+4, event.y, width=2, fill='blue')
-            c2 = self.img.create_line(event.x, event.y-4, event.x, event.y+4, width=2, fill='blue')
+            c1 = self.img.create_line(event.x-4+offset_x, event.y+offset_y, event.x+4+offset_x, event.y+offset_y, width=2, fill='green')
+            c2 = self.img.create_line(event.x+offset_x, event.y+offset_y-4, event.x+offset_x, event.y+offset_y+4, width=2, fill='green')
+
             #self.points.append([event.x, event.y])
             #self.lines.append([c1, c2])
             #save points
-            self.pointsAll[self.currentIndex][self.pNames[index]] = [event.x, event.y]
+            self.pointsAll[self.currentIndex][self.pNames[index]] = [event.x+offset_x, event.y+offset_y]
             self.linesAll[self.currentIndex][self.pNames[index]] = [c1, c2]
 
             self.lb.delete(index)
-            self.lb.insert(index, self.pNames[index].ljust(30) + "(" + str(event.x) + ", " + str(event.y) + ")")
+            self.lb.insert(index, self.pNames[index].ljust(30) + "(" + str(event.x+offset_x) + ", " + str(event.y+offset_y) + ")")
             #print self.pNames[index], len(self.pNames[index])
             self.lb.select_set(index+1)
             if index+1 == self.pnum:
@@ -316,6 +342,7 @@ class App(object):
             self.opathLab.delete(1.0, END)
             self.opathLab.insert(END, self.outp.get())
             self.opathLab.configure(state='disabled')
+            self.loadimg()
             self.readPoints()
             self.loadPoints()
 
@@ -490,7 +517,11 @@ class App(object):
                 self.img.delete(ALL)
                 self.img.create_image(0, 0, anchor=NW, image=photo)
                 self.img.image = photo
-                self.img.configure(width=im.size[0], height=im.size[1])
+                if im.size[1] > self.imgSizeY and im.size[0] > self.imgSizeX:
+                    self.img.configure(width=self.imgSizeX, height=self.imgSizeY)
+                else:
+                    self.img.configure(width=im.size[0], height=im.size[1])
+
                 self.img.configure(scrollregion=(0, 0, im.size[0], im.size[1]))
                 # reset the view
                 self.img.xview_moveto(0)
@@ -503,7 +534,7 @@ class App(object):
     def about(self):
         title = "About this software..."
         msg1 = """FACIAL LABELING APP
-                  Version 1.2 """
+                  Version 1.3 """
         msg2 ="""
               Author: Yu Zhu
               Contact: yzhu4@mix.wvu.edu
@@ -539,7 +570,7 @@ class App(object):
         title = "How to Use..."
         msg1 ="""Facial Points Labeling Application"""
         msg2 ="""
-        V1.2
+        V1.3
         Yu Zhu, WVU, USA, 2014
         yzhu4@mix.wvu.edu"""
         msg3="""
@@ -553,7 +584,7 @@ class App(object):
            (1)Press Button "Select..." in the main window
                 OR go to Menu-->File-->Open.
            (2)Select the images folder for labeling. The 1st image in the folder will be loaded.
-           Note. In this version (v1.2), ONLY .jpg file is supported.
+           Note. In this version (v1.3), ONLY .jpg file is supported.
 
         3. Label the Facial Points
            (1)Click the image area to label the facial points.
@@ -590,8 +621,7 @@ class App(object):
            (3)Input the number of facial points for labeling.
            (4)Input the names of the points.
 
-           Note. In this version (V1.2), this reset step MUST be done BEFORE labeling.
-                 Image size is better less than 500x500 for current version (V1.2)
+
         """
 
         self.tophelp = Toplevel()
